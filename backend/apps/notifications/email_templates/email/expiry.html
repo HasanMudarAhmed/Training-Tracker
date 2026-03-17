@@ -1,0 +1,11 @@
+{% extends "email/base.html" %}
+{% block content %}
+<p>Hi {{ user.first_name }},</p>
+<p style="color:#F39C12;"><strong>Your certificate is expiring soon.</strong></p>
+<div class="info-box" style="border-left-color:#F39C12;">
+  <strong>Training:</strong> {{ training.title }}<br>
+  <strong>Certificate Expiry:</strong> {{ assignment.expiry_date|date:"F d, Y" }}
+</div>
+<p>Please renew your training before the certificate expires to maintain compliance.</p>
+<a href="{{ frontend_url }}/employee/my-trainings" class="btn" style="background:#F39C12;color:#fff;">Renew Training</a>
+{% endblock %}

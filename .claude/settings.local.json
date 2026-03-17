@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find 'E:\\\\Training Tracker' -type f -name *)",
+      "Bash(python -c \"import secrets; print\\(secrets.token_urlsafe\\(50\\)\\)\")",
+      "Bash(sc query:*)",
+      "Bash(findstr -i \"postgresql\")",
+      "Bash(wmic service:*)",
+      "Bash(findstr /i \"postgre\")",
+      "Bash(del \"E:\\\\Training Tracker\\\\backend\\\\db.sqlite3\")",
+      "Bash(source venv/Scripts/activate)",
+      "Bash(python manage.py migrate)",
+      "Bash(echo \"hasanmudar1@gmail.com:*)",
+      "Bash(python manage.py createsuperuser --email hasanmudar1@gmail.com --first_name Admin --last_name User)",
+      "Bash(venv/Scripts/python -c \":*)",
+      "Bash(\"E:/Training Tracker/.gitignore\":*)"
+    ]
+  }
+}

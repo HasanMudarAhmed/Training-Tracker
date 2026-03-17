@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { font-family: Arial, sans-serif; background:#F5F7FA; margin:0; padding:20px; }
+  .container { max-width:600px; margin:0 auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .header { background:#1E3A5F; color:#fff; padding:24px 32px; }
+  .header h1 { margin:0; font-size:20px; }
+  .body { padding:32px; color:#1A1A2E; line-height:1.6; }
+  .info-box { background:#F5F7FA; border-left:4px solid #2E86AB; padding:16px 20px; border-radius:4px; margin:20px 0; }
+  .btn { display:inline-block; background:#2E86AB; color:#fff; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:20px; }
+  .footer { background:#F5F7FA; padding:16px 32px; text-align:center; color:#6C757D; font-size:12px; border-top:1px solid #eee; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>Training Tracker</h1></div>
+  <div class="body">{% block content %}{% endblock %}</div>
+  <div class="footer">This is an automated message from Training Tracker. Please do not reply to this email.</div>
+</div>
+</body>
+</html>

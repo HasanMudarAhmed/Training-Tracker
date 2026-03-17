@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: #8E44AD; padding: 24px 32px;">
+      <h1 style="color: #fff; margin: 0; font-size: 20px;">Training Tracker — Certificate Expiring</h1>
+    </div>
+    <div style="padding: 32px;">
+      <h2 style="color: #8E44AD; margin-top: 0;">Certificate Expiring Soon</h2>
+      <p style="color: #444;">Hi {{ user.first_name }},</p>
+      <p style="color: #444;">Your certificate for the following training is expiring soon:</p>
+      <div style="background: #f9f0ff; border-left: 4px solid #8E44AD; padding: 16px; margin: 20px 0; border-radius: 4px;">
+        <strong style="color: #1E3A5F; font-size: 16px;">{{ training.title }}</strong><br>
+        {% if assignment.expiry_date %}
+        <span style="color: #8E44AD;"><strong>Expires: {{ assignment.expiry_date|date:"F j, Y" }}</strong></span>
+        {% endif %}
+      </div>
+      <p style="color: #444;">Please renew your training before the expiry date to maintain compliance.</p>
+      <a href="{{ frontend_url }}" style="display: inline-block; background: #8E44AD; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 8px;">Renew Training</a>
+    </div>
+    <div style="background: #f5f7fa; padding: 16px 32px; text-align: center;">
+      <p style="color: #999; font-size: 12px; margin: 0;">This is an automated message from Training Tracker. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>

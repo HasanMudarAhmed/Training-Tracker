@@ -1,0 +1,40 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+*.sqlite3
+*.log
+*.pot
+*.mo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Django media & static
+backend/media/
+backend/staticfiles/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

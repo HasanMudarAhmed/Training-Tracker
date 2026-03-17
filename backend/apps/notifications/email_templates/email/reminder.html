@@ -1,0 +1,12 @@
+{% extends "email/base.html" %}
+{% block content %}
+<p>Hi {{ user.first_name }},</p>
+<p>This is a reminder that your training is coming up soon.</p>
+<div class="info-box">
+  <strong>Training:</strong> {{ training.title }}<br>
+  <strong>Due Date:</strong> {{ assignment.due_date|date:"F d, Y" }}<br>
+  <strong>Status:</strong> {{ assignment.get_status_display }}
+</div>
+<p>Please complete this training before the due date.</p>
+<a href="{{ frontend_url }}/employee/my-trainings" class="btn">Complete Training</a>
+{% endblock %}

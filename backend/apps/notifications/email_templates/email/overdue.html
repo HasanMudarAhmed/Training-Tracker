@@ -1,0 +1,12 @@
+{% extends "email/base.html" %}
+{% block content %}
+<p>Hi {{ user.first_name }},</p>
+<p style="color:#E74C3C;"><strong>Your training is now overdue.</strong></p>
+<div class="info-box" style="border-left-color:#E74C3C;">
+  <strong>Training:</strong> {{ training.title }}<br>
+  <strong>Due Date:</strong> {{ assignment.due_date|date:"F d, Y" }}<br>
+  <strong>Status:</strong> Overdue
+</div>
+<p>Please complete this training as soon as possible. Contact your supervisor if you need assistance.</p>
+<a href="{{ frontend_url }}/employee/my-trainings" class="btn" style="background:#E74C3C;">Take Action Now</a>
+{% endblock %}
