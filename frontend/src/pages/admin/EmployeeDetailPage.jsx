@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import Box from '@mui/material/Box'
@@ -18,6 +19,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import AppLayout from '../../components/common/AppLayout'
 import StatusBadge from '../../components/common/StatusBadge'
+import AssignTrainingDialog from '../../components/common/AssignTrainingDialog'
 import { getUser, getUserTrainings } from '../../api/employees.api'
 import { getInitials } from '../../utils/formatters'
 import { formatDate } from '../../utils/dateUtils'
@@ -27,7 +29,8 @@ import { useAuth } from '../../context/AuthContext'
 export default function EmployeeDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { isAdmin } = useAuth()
+  const { isAdmin, isManager, isSupervisor } = useAuth()
+  const [assignOpen, setAssignOpen] = useState(false)
 
   const { data: user, isLoading: loadingUser } = useQuery({
     queryKey: ['user', id],
@@ -39,13 +42,25 @@ export default function EmployeeDetailPage() {
     queryFn: () => getUserTrainings(id).then((r) => r.data),
   })
 
-  const backPath = isAdmin ? '/admin/employees' : '/supervisor/team'
+  const backPath = isAdmin
+    ? '/admin/employees'
+    : isManager
+    ? '/manager/team'
+    : '/supervisor/team'
+
+  const assignPath = isAdmin
+    ? `/admin/assign?employee=${id}`
+    : isManager
+    ? `/manager/assign?employee=${id}`
+    : `/supervisor/assign?employee=${id}`
+
+  const canAssign = isAdmin || isManager || isSupervisor
 
   return (
     <AppLayout title="Employee Profile">
       <Box mb={2}>
         <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(backPath)}>
-          Back to Employees
+          Back
         </Button>
       </Box>
 
@@ -75,6 +90,9 @@ export default function EmployeeDetailPage() {
                     {user?.department_name && (
                       <Typography variant="body2"><b>Department:</b> {user.department_name}</Typography>
                     )}
+                    {user?.manager_name && (
+                      <Typography variant="body2"><b>Manager:</b> {user.manager_name}</Typography>
+                    )}
                     {user?.supervisor_name && (
                       <Typography variant="body2"><b>Supervisor:</b> {user.supervisor_name}</Typography>
                     )}
@@ -99,13 +117,13 @@ export default function EmployeeDetailPage() {
             </CardContent>
           </Card>
 
-          {isAdmin && (
+          {canAssign && (
             <Button
               variant="contained"
               fullWidth
               startIcon={<AssignmentIcon />}
               sx={{ mt: 2 }}
-              onClick={() => navigate(`/admin/assign?employee=${id}`)}
+              onClick={() => isAdmin ? navigate(assignPath) : setAssignOpen(true)}
             >
               Assign Training
             </Button>
@@ -157,6 +175,12 @@ export default function EmployeeDetailPage() {
           </Card>
         </Grid>
       </Grid>
+
+      <AssignTrainingDialog
+        open={assignOpen}
+        onClose={() => setAssignOpen(false)}
+        preEmployee={user ? { id: user.id, full_name: user.full_name, email: user.email } : null}
+      />
     </AppLayout>
   )
 }

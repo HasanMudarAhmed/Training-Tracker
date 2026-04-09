@@ -43,7 +43,9 @@ class SummaryReportView(APIView):
 
     def _base_qs(self, user):
         qs = TrainingAssignment.objects.all()
-        if user.role == 'supervisor':
+        if user.role == 'manager':
+            qs = qs.filter(employee__department=user.department)
+        elif user.role == 'supervisor':
             qs = qs.filter(employee__supervisor=user)
         return qs
 
@@ -79,7 +81,9 @@ class EmployeeReportView(APIView):
         employees = User.objects.filter(role='employee', is_active=True).select_related(
             'department', 'supervisor'
         )
-        if user.role == 'supervisor':
+        if user.role == 'manager':
+            employees = employees.filter(department=user.department)
+        elif user.role == 'supervisor':
             employees = employees.filter(supervisor=user)
 
         data = []
@@ -109,7 +113,9 @@ class OverdueReportView(APIView):
         qs = TrainingAssignment.objects.filter(status='overdue').select_related(
             'employee', 'employee__department', 'training'
         )
-        if user.role == 'supervisor':
+        if user.role == 'manager':
+            qs = qs.filter(employee__department=user.department)
+        elif user.role == 'supervisor':
             qs = qs.filter(employee__supervisor=user)
 
         data = [{
@@ -135,7 +141,9 @@ class ExpiringReportView(APIView):
             expiry_date__gte=timezone.now().date(),
             status='completed'
         ).select_related('employee', 'training')
-        if user.role == 'supervisor':
+        if user.role == 'manager':
+            qs = qs.filter(employee__department=user.department)
+        elif user.role == 'supervisor':
             qs = qs.filter(employee__supervisor=user)
 
         data = [{

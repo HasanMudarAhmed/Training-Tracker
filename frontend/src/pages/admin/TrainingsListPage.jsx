@@ -5,6 +5,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
+import Autocomplete from '@mui/material/Autocomplete'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Table from '@mui/material/Table'
@@ -28,21 +29,20 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useSnackbar } from 'notistack'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
+
 
 import AppLayout from '../../components/common/AppLayout'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import EmptyState from '../../components/common/EmptyState'
 import { getTrainings, createTraining, updateTraining, deleteTraining } from '../../api/trainings.api'
-import { CATEGORY_LABELS } from '../../utils/statusUtils'
+import { CATEGORY_LABELS, PREDEFINED_TRAININGS } from '../../utils/statusUtils'
 
 function TrainingFormDialog({ open, onClose, training }) {
   const { enqueueSnackbar } = useSnackbar()
   const qc = useQueryClient()
   const isEdit = !!training
-  const { register, handleSubmit, reset, watch, formState: { isSubmitting } } = useForm({ defaultValues: training || {} })
-
-  const isRecurring = watch('is_recurring')
+  const { register, handleSubmit, reset, control, formState: { isSubmitting } } = useForm({ defaultValues: training || {} })
 
   const mutation = useMutation({
     mutationFn: (data) => isEdit ? updateTraining(training.id, data) : createTraining(data),
@@ -61,7 +61,28 @@ function TrainingFormDialog({ open, onClose, training }) {
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
             <Grid item xs={12}>
-              <TextField label="Title" fullWidth required {...register('title', { required: true })} />
+              <Controller
+                name="title"
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <Autocomplete
+                    freeSolo
+                    options={PREDEFINED_TRAININGS}
+                    value={value || ''}
+                    onInputChange={(_, newValue) => onChange(newValue)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Title"
+                        required
+                        error={!!error}
+                        helperText={error ? 'Title is required' : ''}
+                      />
+                    )}
+                  />
+                )}
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField label="Description" fullWidth multiline rows={3} {...register('description')} />
@@ -74,17 +95,6 @@ function TrainingFormDialog({ open, onClose, training }) {
             <Grid item xs={6}>
               <TextField label="Duration (hours)" type="number" fullWidth {...register('duration_hours')} />
             </Grid>
-            <Grid item xs={6}>
-              <TextField select label="Recurring?" fullWidth defaultValue="false" {...register('is_recurring')}>
-                <MenuItem value="false">No</MenuItem>
-                <MenuItem value="true">Yes</MenuItem>
-              </TextField>
-            </Grid>
-            {isRecurring === 'true' && (
-              <Grid item xs={6}>
-                <TextField label="Recurrence (months)" type="number" fullWidth {...register('recurrence_months')} />
-              </Grid>
-            )}
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

@@ -25,6 +25,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useSnackbar } from 'notistack'
 
 import AppLayout from '../../components/common/AppLayout'
+import { useAuth } from '../../context/AuthContext'
 import StatusBadge from '../../components/common/StatusBadge'
 import FileUpload from '../../components/common/FileUpload'
 import EmptyState from '../../components/common/EmptyState'
@@ -127,12 +128,13 @@ export default function MyTrainingsPage() {
   const [statusDialog, setStatusDialog] = useState(null)
   const [uploadDialog, setUploadDialog] = useState(null)
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const statusFilter = TABS[tab].status
 
   const { data, isLoading } = useQuery({
-    queryKey: ['my-assignments', statusFilter],
-    queryFn: () => getAssignments({ status: statusFilter, page_size: 100 }).then((r) => r.data),
+    queryKey: ['my-assignments', statusFilter, user?.id],
+    queryFn: () => getAssignments({ status: statusFilter, employee: user?.id, page_size: 100 }).then((r) => r.data),
   })
 
   const assignments = data?.results || []

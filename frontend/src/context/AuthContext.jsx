@@ -38,6 +38,7 @@ export function AuthProvider({ children }) {
     logout,
     refreshUser,
     isAdmin: user?.role === 'admin',
+    isManager: user?.role === 'manager',
     isSupervisor: user?.role === 'supervisor',
     isEmployee: user?.role === 'employee',
   }

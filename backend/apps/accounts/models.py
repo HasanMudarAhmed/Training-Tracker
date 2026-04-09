@@ -38,6 +38,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
+        ('manager', 'Manager'),
         ('supervisor', 'Supervisor'),
         ('employee', 'Employee'),
     ]
@@ -50,6 +51,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     department = models.ForeignKey(
         Department, null=True, blank=True,
         on_delete=models.SET_NULL, related_name='members'
+    )
+    manager = models.ForeignKey(
+        'self', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='managed_supervisors',
+        limit_choices_to={'role': 'manager'}
     )
     supervisor = models.ForeignKey(
         'self', null=True, blank=True,
@@ -79,6 +85,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_admin(self):
         return self.role == 'admin'
+
+    @property
+    def is_manager(self):
+        return self.role == 'manager'
 
     @property
     def is_supervisor(self):

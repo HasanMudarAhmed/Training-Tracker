@@ -10,18 +10,19 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useSnackbar } from 'notistack'
-import { createUser, updateUser, getDepartments, getUsers } from '../../api/employees.api'
+import { createUser, updateUser, getDepartments, getUsers, getManagers } from '../../api/employees.api'
 
 export default function UserFormDialog({ open, onClose, user }) {
   const { enqueueSnackbar } = useSnackbar()
   const qc = useQueryClient()
   const isEdit = !!user
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
+  const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm()
+  const selectedRole = watch('role', user?.role || 'employee')
 
   useEffect(() => {
     if (user) reset(user)
-    else reset({})
+    else reset({ role: 'employee' })
   }, [user, reset])
 
   const { data: departments = [] } = useQuery({
@@ -36,10 +37,16 @@ export default function UserFormDialog({ open, onClose, user }) {
     enabled: open,
   })
 
+  const { data: managers = [] } = useQuery({
+    queryKey: ['users', { role: 'manager' }],
+    queryFn: () => getManagers().then((r) => r.data.results || r.data),
+    enabled: open,
+  })
+
   const mutation = useMutation({
     mutationFn: (data) => isEdit ? updateUser(user.id, data) : createUser(data),
     onSuccess: () => {
-      enqueueSnackbar(isEdit ? 'Employee updated.' : 'Employee created.', { variant: 'success' })
+      enqueueSnackbar(isEdit ? 'User updated.' : 'User created.', { variant: 'success' })
       qc.invalidateQueries({ queryKey: ['users'] })
       onClose()
     },
@@ -51,26 +58,26 @@ export default function UserFormDialog({ open, onClose, user }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEdit ? 'Edit Employee' : 'Add New Employee'}</DialogTitle>
+      <DialogTitle>{isEdit ? 'Edit User' : 'Add New User'}</DialogTitle>
       <form onSubmit={handleSubmit((data) => mutation.mutate(data))}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
             <Grid item xs={6}>
-              <TextField label="First Name" fullWidth {...register('first_name', { required: true })} error={!!errors.first_name} />
+              <TextField label="First Name" fullWidth required {...register('first_name', { required: true })} error={!!errors.first_name} />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Last Name" fullWidth {...register('last_name', { required: true })} error={!!errors.last_name} />
+              <TextField label="Last Name" fullWidth required {...register('last_name', { required: true })} error={!!errors.last_name} />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Email" type="email" fullWidth {...register('email', { required: true })} error={!!errors.email} />
+              <TextField label="Email" type="email" fullWidth required {...register('email', { required: true })} error={!!errors.email} />
             </Grid>
             {!isEdit && (
               <>
                 <Grid item xs={6}>
-                  <TextField label="Password" type="password" fullWidth {...register('password', { required: true })} />
+                  <TextField label="Password" type="password" fullWidth required {...register('password', { required: true })} />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label="Confirm Password" type="password" fullWidth {...register('password_confirm', { required: true })} />
+                  <TextField label="Confirm Password" type="password" fullWidth required {...register('password_confirm', { required: true })} />
                 </Grid>
               </>
             )}
@@ -78,6 +85,7 @@ export default function UserFormDialog({ open, onClose, user }) {
               <TextField select label="Role" fullWidth defaultValue="employee" {...register('role')}>
                 <MenuItem value="employee">Employee</MenuItem>
                 <MenuItem value="supervisor">Supervisor</MenuItem>
+                <MenuItem value="manager">Manager</MenuItem>
                 <MenuItem value="admin">Admin</MenuItem>
               </TextField>
             </Grid>
@@ -91,14 +99,24 @@ export default function UserFormDialog({ open, onClose, user }) {
               </TextField>
             </Grid>
             <Grid item xs={6}>
-              <TextField select label="Supervisor" fullWidth defaultValue="" {...register('supervisor')}>
-                <MenuItem value="">None</MenuItem>
-                {supervisors.map((s) => <MenuItem key={s.id} value={s.id}>{s.full_name}</MenuItem>)}
-              </TextField>
-            </Grid>
-            <Grid item xs={6}>
               <TextField label="Phone" fullWidth {...register('phone')} />
             </Grid>
+            {selectedRole === 'supervisor' && (
+              <Grid item xs={12}>
+                <TextField select label="Manager" fullWidth defaultValue="" {...register('manager')}>
+                  <MenuItem value="">None</MenuItem>
+                  {managers.map((m) => <MenuItem key={m.id} value={m.id}>{m.full_name}</MenuItem>)}
+                </TextField>
+              </Grid>
+            )}
+            {selectedRole === 'employee' && (
+              <Grid item xs={12}>
+                <TextField select label="Supervisor" fullWidth defaultValue="" {...register('supervisor')}>
+                  <MenuItem value="">None</MenuItem>
+                  {supervisors.map((s) => <MenuItem key={s.id} value={s.id}>{s.full_name}</MenuItem>)}
+                </TextField>
+              </Grid>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

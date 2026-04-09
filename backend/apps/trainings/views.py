@@ -30,7 +30,9 @@ class TrainingViewSet(viewsets.ModelViewSet):
         return Training.objects.select_related('created_by').filter(is_active=True)
 
     def get_permissions(self):
-        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+        if self.action == 'create':
+            return [IsSupervisorOrAdmin()]
+        if self.action in ('update', 'partial_update', 'destroy'):
             return [IsAdmin()]
         return [IsAuthenticated()]
 
@@ -63,8 +65,11 @@ class TrainingAssignmentViewSet(viewsets.ModelViewSet):
         )
         if user.role == 'admin':
             return qs.all()
+        if user.role == 'manager':
+            return qs.filter(employee__department=user.department)
         if user.role == 'supervisor':
-            return qs.filter(employee__supervisor=user)
+            from django.db.models import Q
+            return qs.filter(Q(employee=user) | Q(employee__supervisor=user))
         return qs.filter(employee=user)
 
     def get_permissions(self):
@@ -99,7 +104,22 @@ class TrainingAssignmentViewSet(viewsets.ModelViewSet):
 
         with transaction.atomic():
             trainings = Training.objects.filter(id__in=training_ids, is_active=True)
-            employees = User.objects.filter(id__in=employee_ids, role='employee', is_active=True)
+            # Managers can assign to both employees and supervisors in their dept;
+            # supervisors can only assign to their own employees
+            if request.user.role == 'manager':
+                employees = User.objects.filter(
+                    id__in=employee_ids,
+                    role__in=['employee', 'supervisor'],
+                    is_active=True,
+                    department=request.user.department,
+                )
+            elif request.user.role == 'supervisor':
+                employees = User.objects.filter(
+                    id__in=employee_ids, role='employee',
+                    is_active=True, supervisor=request.user,
+                )
+            else:
+                employees = User.objects.filter(id__in=employee_ids, is_active=True).exclude(role='admin')
 
             for training in trainings:
                 for employee in employees:

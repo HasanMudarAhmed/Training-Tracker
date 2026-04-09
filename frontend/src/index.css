@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #F9FAFB;
+    color: #101828;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  /* Untitled UI-style button variants */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg border transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white border-brand-600 hover:bg-brand-700 focus:ring-brand-500;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-gray-700 border-gray-300 hover:bg-gray-50 focus:ring-brand-500;
+  }
+  .btn-destructive {
+    @apply btn bg-error-500 text-white border-error-500 hover:bg-error-700 focus:ring-error-500;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-gray-600 border-transparent hover:bg-gray-50;
+  }
+  .btn-sm {
+    @apply px-3 py-2 text-sm;
+  }
+  .btn-lg {
+    @apply px-5 py-3 text-base;
+  }
+
+  /* Card */
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+  }
+
+  /* Input */
+  .input {
+    @apply w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition;
+  }
+  .input-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-gray    { @apply badge bg-gray-100 text-gray-700; }
+  .badge-blue    { @apply badge bg-brand-50 text-brand-700; }
+  .badge-green   { @apply badge bg-success-50 text-success-700; }
+  .badge-yellow  { @apply badge bg-warning-50 text-warning-700; }
+  .badge-red     { @apply badge bg-error-50 text-error-700; }
+
+  /* Table */
+  .table-header { @apply text-xs font-medium text-gray-500 uppercase tracking-wider; }
+  .table-cell   { @apply px-6 py-4 text-sm text-gray-700; }
+  .table-row    { @apply border-b border-gray-100 hover:bg-gray-50 transition-colors; }
+}

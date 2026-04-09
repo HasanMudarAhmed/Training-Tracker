@@ -17,15 +17,27 @@ import LinearProgress from '@mui/material/LinearProgress'
 import Skeleton from '@mui/material/Skeleton'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import AssignmentIcon from '@mui/icons-material/Assignment'
+import AddIcon from '@mui/icons-material/Add'
+import Button from '@mui/material/Button'
 
 import AppLayout from '../../components/common/AppLayout'
 import EmptyState from '../../components/common/EmptyState'
+import AddEmployeeDialog from './AddEmployeeDialog'
+import AssignTrainingDialog from '../../components/common/AssignTrainingDialog'
 import { getUsers } from '../../api/employees.api'
 import { getInitials } from '../../utils/formatters'
 
 export default function TeamListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [addOpen, setAddOpen] = useState(false)
+  const [assignOpen, setAssignOpen] = useState(false)
+  const [assignEmployee, setAssignEmployee] = useState(null)
+
+  const openAssign = (employee) => {
+    setAssignEmployee(employee)
+    setAssignOpen(true)
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', { search, role: 'employee' }],
@@ -38,6 +50,9 @@ export default function TeamListPage() {
     <AppLayout title="My Team">
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h5" fontWeight={700}>My Team</Typography>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddOpen(true)}>
+          Add Employee
+        </Button>
       </Box>
 
       <Box mb={2}>
@@ -98,7 +113,7 @@ export default function TeamListPage() {
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Assign Training">
-                    <IconButton size="small" onClick={() => navigate(`/supervisor/assign?employee=${u.id}`)}>
+                    <IconButton size="small" onClick={() => openAssign(u)}>
                       <AssignmentIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -108,6 +123,12 @@ export default function TeamListPage() {
           </TableBody>
         </Table>
       </Card>
+      <AddEmployeeDialog open={addOpen} onClose={() => setAddOpen(false)} />
+      <AssignTrainingDialog
+        open={assignOpen}
+        onClose={() => setAssignOpen(false)}
+        preEmployee={assignEmployee}
+      />
     </AppLayout>
   )
 }

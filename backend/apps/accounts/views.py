@@ -16,7 +16,7 @@ from .serializers import (
     UserSerializer, UserCreateSerializer, UserMinimalSerializer,
     DepartmentSerializer, ChangePasswordSerializer
 )
-from .permissions import IsAdmin, IsSupervisorOrAdmin
+from .permissions import IsAdmin, IsSupervisorOrAdmin, IsManagerOrAdmin
 
 User = get_user_model()
 
@@ -179,7 +179,7 @@ class PasswordResetConfirmView(generics.GenericAPIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['role', 'department', 'supervisor', 'is_active']
+    filterset_fields = ['role', 'department', 'supervisor', 'manager', 'is_active']
     search_fields = ['first_name', 'last_name', 'email', 'job_title']
     ordering_fields = ['first_name', 'last_name', 'date_joined']
     ordering = ['first_name']
@@ -190,15 +190,44 @@ class UserViewSet(viewsets.ModelViewSet):
         return UserSerializer
 
     def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'minimal', 'user_trainings'):
             return [IsAuthenticated()]
+        if self.action == 'create':
+            return [IsSupervisorOrAdmin()]
+        if self.action in ('update', 'partial_update', 'destroy'):
+            return [IsManagerOrAdmin()]
         return [IsAdmin()]
 
-    def get_queryset(self):
+    def _check_manager_scope(self, target_user):
+        """Raise PermissionDenied if manager tries to act on a user outside their dept."""
+        from rest_framework.exceptions import PermissionDenied
         user = self.request.user
-        qs = User.objects.select_related('department', 'supervisor').all()
+        if user.role == 'manager':
+            if target_user.department_id != user.department_id:
+                raise PermissionDenied('You can only manage users in your department.')
+            if target_user.role not in ('supervisor', 'employee'):
+                raise PermissionDenied('Managers can only edit supervisors and employees.')
+
+    def perform_update(self, serializer):
+        self._check_manager_scope(serializer.instance)
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        self._check_manager_scope(instance)
+        instance.is_active = False
+        instance.save()
+
+    def get_queryset(self):
+        from django.db.models import Q
+        user = self.request.user
+        qs = User.objects.select_related('department', 'supervisor', 'manager').all()
         if user.role == 'admin':
             return qs
+        if user.role == 'manager':
+            return qs.filter(
+                Q(role='supervisor', department=user.department) |
+                Q(role='employee', department=user.department)
+            )
         if user.role == 'supervisor':
             return qs.filter(supervisor=user)
         return qs.filter(id=user.id)
@@ -213,8 +242,12 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='minimal')
     def minimal(self, request):
-        """Lightweight list for dropdowns."""
-        qs = self.get_queryset().filter(role='employee', is_active=True)
+        """Lightweight list for dropdowns. Managers get employees + supervisors; others get employees only."""
+        qs = self.get_queryset().filter(is_active=True)
+        if request.user.role == 'manager':
+            qs = qs.filter(role__in=['employee', 'supervisor'])
+        else:
+            qs = qs.filter(role='employee')
         serializer = UserMinimalSerializer(qs, many=True)
         return Response(serializer.data)
 

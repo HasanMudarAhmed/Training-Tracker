@@ -13,6 +13,15 @@ def certificate_upload_path(instance, filename):
 class Training(models.Model):
     CATEGORY_CHOICES = [
         ('safety', 'Safety'),
+        ('health', 'Health & Wellness'),
+        ('fire_safety', 'Fire Safety'),
+        ('hazmat', 'Hazardous Materials'),
+        ('emergency', 'Emergency Preparedness'),
+        ('electrical', 'Electrical Safety'),
+        ('environmental', 'Environmental'),
+        ('machinery', 'Machinery & Equipment'),
+        ('materials_handling', 'Materials Handling'),
+        ('housekeeping', 'Housekeeping & Storage'),
         ('compliance', 'Compliance'),
         ('technical', 'Technical'),
         ('soft_skills', 'Soft Skills'),

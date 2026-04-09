@@ -13,6 +13,7 @@ export default function PrivateRoute({ allowedRoles }) {
     // Redirect to appropriate dashboard
     const dashboards = {
       admin: '/admin/dashboard',
+      manager: '/manager/dashboard',
       supervisor: '/supervisor/dashboard',
       employee: '/employee/dashboard',
     }

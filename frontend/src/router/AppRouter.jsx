@@ -16,6 +16,12 @@ import TrainingDetailPage from '../pages/admin/TrainingDetailPage'
 import AssignTrainingPage from '../pages/admin/AssignTrainingPage'
 import ReportsPage from '../pages/admin/ReportsPage'
 import SettingsPage from '../pages/admin/SettingsPage'
+import DepartmentsPage from '../pages/admin/DepartmentsPage'
+
+// Manager pages
+import ManagerDashboard from '../pages/manager/ManagerDashboard'
+import SupervisorsListPage from '../pages/manager/SupervisorsListPage'
+import ManagerTeamPage from '../pages/manager/ManagerTeamPage'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/SupervisorDashboard'
@@ -33,7 +39,7 @@ function RootRedirect() {
   const { user, loading } = useAuth()
   if (loading) return <PageLoader />
   if (!user) return <Navigate to="/login" replace />
-  const map = { admin: '/admin/dashboard', supervisor: '/supervisor/dashboard', employee: '/employee/dashboard' }
+  const map = { admin: '/admin/dashboard', manager: '/manager/dashboard', supervisor: '/supervisor/dashboard', employee: '/employee/dashboard' }
   return <Navigate to={map[user.role] || '/login'} replace />
 }
 
@@ -55,8 +61,18 @@ export default function AppRouter() {
         <Route path="/admin/trainings" element={<TrainingsListPage />} />
         <Route path="/admin/trainings/:id" element={<TrainingDetailPage />} />
         <Route path="/admin/assign" element={<AssignTrainingPage />} />
+        <Route path="/admin/departments" element={<DepartmentsPage />} />
         <Route path="/admin/reports" element={<ReportsPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />
+      </Route>
+
+      {/* Manager routes */}
+      <Route element={<PrivateRoute allowedRoles={['manager']} />}>
+        <Route path="/manager/dashboard" element={<ManagerDashboard />} />
+        <Route path="/manager/supervisors" element={<SupervisorsListPage />} />
+        <Route path="/manager/team" element={<ManagerTeamPage />} />
+        <Route path="/manager/team/:id" element={<EmployeeDetailPage />} />
+        <Route path="/manager/assign" element={<AssignTrainingPage />} />
       </Route>
 
       {/* Supervisor routes */}
@@ -64,6 +80,7 @@ export default function AppRouter() {
         <Route path="/supervisor/dashboard" element={<SupervisorDashboard />} />
         <Route path="/supervisor/team" element={<TeamListPage />} />
         <Route path="/supervisor/team/:id" element={<EmployeeDetailPage />} />
+        <Route path="/supervisor/my-trainings" element={<MyTrainingsPage />} />
         <Route path="/supervisor/assign" element={<AssignTrainingPage />} />
       </Route>
 

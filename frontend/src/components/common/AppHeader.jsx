@@ -1,12 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import IconButton from '@mui/material/IconButton'
-import Badge from '@mui/material/Badge'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import MenuIcon from '@mui/icons-material/Menu'
-import NotificationsIcon from '@mui/icons-material/Notifications'
+import { Menu01, Bell01 } from '@untitled-ui/icons-react'
 import { useUnreadCount } from '../../hooks/useNotifications'
 
 export default function AppHeader({ onMenuClick, title }) {
@@ -14,22 +7,32 @@ export default function AppHeader({ onMenuClick, title }) {
   const { data: unreadCount = 0 } = useUnreadCount()
 
   return (
-    <AppBar position="sticky" elevation={0}>
-      <Toolbar>
-        <IconButton edge="start" color="inherit" onClick={onMenuClick} sx={{ mr: 2, display: { md: 'none' } }}>
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" fontWeight={600} color="text.primary" flex={1}>
-          {title}
-        </Typography>
-        <Box display="flex" alignItems="center" gap={1}>
-          <IconButton color="inherit" onClick={() => navigate('/notifications')}>
-            <Badge badgeContent={unreadCount} color="error" max={99}>
-              <NotificationsIcon sx={{ color: 'text.secondary' }} />
-            </Badge>
-          </IconButton>
-        </Box>
-      </Toolbar>
-    </AppBar>
+    <header className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+      {/* Left: hamburger + title */}
+      <div className="flex items-center gap-3">
+        <button
+          className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+          onClick={onMenuClick}
+        >
+          <Menu01 size={20} />
+        </button>
+        <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+      </div>
+
+      {/* Right: notifications */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate('/notifications')}
+          className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+        >
+          <Bell01 size={20} />
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+      </div>
+    </header>
   )
 }
