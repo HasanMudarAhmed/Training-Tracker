@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '',
   withCredentials: true, // send httpOnly cookies
   headers: { 'Content-Type': 'application/json' },
 })
@@ -15,7 +15,7 @@ api.interceptors.response.use(
       original._retry = true
       try {
         await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/auth/refresh/`,
+          `${import.meta.env.VITE_API_BASE_URL || ''}/api/auth/refresh/`,
           {},
           { withCredentials: true }
         )
